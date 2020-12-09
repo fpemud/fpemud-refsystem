@@ -1,0 +1,4 @@
+[main]
+name = neurogeek
+url = https://github.com/neurogeek/gentoo-overlay
+package = dev-nodejs/underscore_string

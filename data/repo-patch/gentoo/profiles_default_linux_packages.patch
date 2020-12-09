@@ -1,0 +1,12 @@
+diff --git a/profiles/default/linux/packages b/profiles/default/linux/packages
+index d0b8745d044..cdfb38b4e86 100644
+--- a/profiles/default/linux/packages
++++ b/profiles/default/linux/packages
+@@ -6,7 +6,6 @@
+ # will have.  Some will have an selinux profile (see ${PORTDIR}/profiles/selinux).
+ # The idea is to only create a new family of profiles when absolutely necessary.
+ 
+-*sys-apps/busybox
+ *sys-apps/iproute2
+ *sys-apps/man-pages
+ *sys-apps/net-tools

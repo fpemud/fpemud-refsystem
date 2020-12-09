@@ -1,0 +1,49 @@
+#!/bin/sh
+
+hook_post_src_prepare() {
+	fpemud_refsystem_patch() {
+		cd "${S}"
+		for i in `ls ${EPATCH_SOURCE}/*.${EPATCH_SUFFIX} 2> /dev/null`; do
+			patch -p1 < "${i}" || return 1
+		done
+	}
+
+	local EPATCH_SOURCE
+	local check
+	local base=/usr/share/fpemud-refsystem/etc-common/patch.base
+	for check in {${CATEGORY}/${PF},${CATEGORY}/${P},${CATEGORY}/${PN}}; do
+		EPATCH_SOURCE=${base}/${CTARGET}/${check}
+		[[ -r ${EPATCH_SOURCE} ]] || EPATCH_SOURCE=${base}/${CHOST}/${check}
+		[[ -r ${EPATCH_SOURCE} ]] || EPATCH_SOURCE=${base}/${check}
+		if [[ -d ${EPATCH_SOURCE} ]] ; then
+			EPATCH_SOURCE=${EPATCH_SOURCE} \
+			EPATCH_SUFFIX="patch" \
+			EPATCH_FORCE="yes" \
+			EPATCH_MULTI_MSG="Applying fpemud's patches from ${EPATCH_SOURCE} ..." \
+			fpemud_refsystem_patch || die "fpemud_refsystem_patch failed"
+			return
+		fi
+	done
+}
+
+hook_post_src_install() {
+	local POSTPATCH_SOURCE
+	local check
+	local base=/usr/share/fpemud-refsystem/etc-common/patch.base_post
+	for check in {${CATEGORY}/${PF},${CATEGORY}/${P},${CATEGORY}/${PN}}; do
+		POSTPATCH_SOURCE=${base}/${CTARGET}/${check}
+		[[ -r ${POSTPATCH_SOURCE} ]] || POSTPATCH_SOURCE=${base}/${CHOST}/${check}
+		[[ -r ${POSTPATCH_SOURCE} ]] || POSTPATCH_SOURCE=${base}/${check}
+		if [[ -d ${POSTPATCH_SOURCE} ]] ; then
+			echo ">>> Applying fpemud's post-patches from ${POSTPATCH_SOURCE}"
+			for f in `ls ${POSTPATCH_SOURCE}/*.zip 2> /dev/null` ; do
+				/usr/bin/unzip -o ${f} -d "${D}"
+			done
+			for f in `ls ${POSTPATCH_SOURCE}/*.sh 2> /dev/null` ; do
+				source ${f}
+			done
+			echo ">>> Patch complete."
+			return
+		fi
+	done
+}

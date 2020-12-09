@@ -1,0 +1,4 @@
+[main]
+name = lanodan
+url = https://gitlab.com/lanodan/overlay.git
+package = gui-wm/cage

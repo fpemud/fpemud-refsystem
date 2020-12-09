@@ -1,0 +1,4 @@
+[main]
+name = wellWINeo
+url = https://github.com/wellWINeo/wellWINeo_overlay
+package = sys-process/bpytop

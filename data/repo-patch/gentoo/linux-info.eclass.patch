@@ -1,0 +1,13 @@
+diff --git a/eclass/linux-info.eclass b/eclass/linux-info.eclass
+index 16740a3..f9941a4 100644
+--- a/eclass/linux-info.eclass
++++ b/eclass/linux-info.eclass
+@@ -731,7 +731,7 @@ check_extra_config() {
+ 			return 0
+ 		fi
+ 	else
+-		require_configured_kernel
++		linux_config_exists
+ 	fi
+ 
+ 	einfo "Checking for suitable kernel configuration options..."

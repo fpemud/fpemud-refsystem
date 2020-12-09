@@ -1,0 +1,4 @@
+[main]
+name = shimataro
+url = https://github.com/shimataro/portage-overlay
+package = dev-vcs/github-desktop

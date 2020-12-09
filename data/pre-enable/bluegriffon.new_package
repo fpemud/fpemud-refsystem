@@ -1,0 +1,7 @@
+[main]
+name = spikyatlinux
+url = https://github.com/spikyatlinux/ebuilds_for_gentoo
+package = dev-util/bluegriffon
+
+
+

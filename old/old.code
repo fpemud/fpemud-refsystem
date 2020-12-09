@@ -1,0 +1,481 @@
+
+# def _getDotCfgFileSrcArch(self, dotCfgFile):
+#     buf = FmUtil.readFile(dotCfgFile)
+#     m = re.search("^# Linux/([^ ]*)", buf, re.M)
+#     if m is None:
+#         raise Exception("Illegal dotConfg file")
+#     return m.group(1)
+
+# def _getDotCfgFileVerStr(self, dotCfgFile):
+#     buf = FmUtil.readFile(dotCfgFile)
+#     m = re.search("^# Linux/[^ ]* ([^ ]*)", buf, re.M)
+#     if m is None:
+#         raise Exception("Illegal dotConfig file")
+#     return m.group(1)
+
+# def doLockPackage(self, pkgName):
+#     # collect information and check
+#     porttree = portage.db[portage.root]["porttree"]
+#     portCpvList = porttree.dbapi.match(pkgName)
+#     if len(portCpvList) == 0:
+#         raise Exception("the specified package does not exist")
+
+#     vartree = portage.db[portage.root]["vartree"]
+#     varCpvList = vartree.dbapi.match(pkgName)
+#     if len(varCpvList) == 0:
+#         raise Exception("the specified package is not installed")
+#     for cpv in varCpvList:
+#         if cpv not in portCpvList:
+#             raise Exception("the specified package installation is not in synchronization with the portage tree anymore")
+
+#     # find all the slots
+#     slotCpvDict = dict()
+#     for cpv in portCpvList:
+#         nslot = porttree.dbapi.aux_get(cpv, ["SLOT"])[0]
+#         ncpv = cpv if cpv in varCpvList else None
+#         if slotCpvDict.get(nslot) is None:
+#             slotCpvDict[nslot] = ncpv
+#         else:
+#             assert ncpv is None        # one slot can have only one cpv installed
+
+#     # do operation
+#     maskFile = os.path.join(self.param.portageCfgMaskDir, "temp")
+
+#     buf = ""
+#     if os.path.exists(maskFile):
+#         buf = FmUtil.readFile(maskFile)
+
+#     if len(slotCpvDict) > 1:
+#         for slot, cpv in list(slotCpvDict.items()):
+#             if cpv is not None:
+#                 buf += ">%s:%s\n" % (cpv, slot)
+#             else:
+#                 buf += "%s:%s\n" % (pkgName, slot)
+#     else:
+#         cpv = list(slotCpvDict.values())[0]
+#         buf += ">%s\n" % (cpv)
+
+#     FmUtil.writeFile(maskFile, buf)
+
+
+
+
+#     if mntInfoDict["rdata"] is None:
+#         mntOpt = mi.mntOpt
+#     else:
+#         # root should be mounted read-only if "rdata" presents
+#         if mi.mntOpt == "":
+#             mntOpt = "ro"
+#         else:
+#             mntOpt = "ro," + mi.mntOpt
+
+# # mount rdata
+# if mntInfoDict["rdata"] is not None:
+#     mi = mntInfoDict["rdata"]
+#     pf = os.path.join("/sysroot", "run", "rdata.mount")
+#     buf += "mkdir -m 770 \"%s\"" % (pf)
+#     buf += "mount -t %s -o \"%s\" \"%s\" \"%s\"\n" % (mi.fsType, mi.mntOpt, mi.devPath, pf)
+#     buf += "mount --bind \"/sysroot/run/rdata.mount/root\" \"/sysroot/root\""
+#     buf += "mount --bind \"/sysroot/run/rdata.mount/home\" \"/sysroot/home\""
+#     buf += "mount --bind \"/sysroot/run/rdata.mount/var\" \"/sysroot/var\""
+#     buf += "\n"
+
+
+# def getKconfigRequirementDict(self):
+#     ret = dict()
+#     vartree = portage.db[portage.root]['vartree']
+#     for cp in vartree.dbapi.cp_all():
+#         tmpDict = self._getKconfigRequirementDictForOnePkg(cp)
+#         for k, v in list(tmpDict.items()):
+#             if k in ret:
+#                 ret[k] = self._mergeKconfigRequirementValue(k, ret[k], v)
+#             else:
+#                 ret[k] = v
+#     return ret
+
+# def _getKconfigRequirementDictForOnePkg(self, pkgName):
+#     ret = dict()
+
+#     ebuild2File = os.path.join(self.ebuild2Dir, pkgName, pkgName.split("/")[1] + ".ebuild2")
+#     if not os.path.exists(ebuild2File):
+#         return ret
+
+#     prepCmd = ". \"%s\"; pkg_kconfig_require() { return; }; . \"%s\";" % (self.makeConfFile, ebuild2File)
+#     proc = subprocess.Popen(['/bin/bash', '-c', "%s pkg_kconfig_require" % (prepCmd)], stdout=subprocess.PIPE)
+#     out = proc.communicate()[0].decode("ascii")
+#     if proc.returncode != 0:
+#         raise Exception("Executing pkg_kconfig_require() failed for package %s", pkgName)
+
+#     for line in out.split("\n"):
+#         if line != "" and not line.startswith("#"):
+#             k, v = line.split("=")
+#             ret[k] = v
+
+#     return ret
+
+# def _mergeKconfigRequirementValue(self, kconfigItem, value1, value2):
+#     if value1 == value2:
+#         return value1
+#     if self._pairCheck(value1, value2, "y|m", "y"):
+#         return "y"
+#     if self._pairCheck(value1, value2, "y|m", "m"):
+#         return "m"
+#     raise Exception("Value of %s conflict (\"%s\" vs \"%s\")" % (kconfigItem, value1, value2))
+
+# def _pairCheck(self, pair1_1, pair1_2, pair2_1, pair2_2):
+#     if pair1_1 == pair2_1 and pair1_2 == pair2_2:
+#         return True
+#     if pair1_2 == pair2_1 and pair1_1 == pair2_2:
+#         return True
+#     return False
+
+
+
+# # show result
+# print("You are in country %s(%s):" % (countryName, countryCode))
+# if gentooMirrors == []:
+#     print("  Gentoo http mirror(s):       None")
+# else:
+#     print("  Gentoo http mirror(s):       %s" % (gentooMirrors[0]))
+#     for m in gentooMirrors[1:]:
+#         print("                               %s" % (m))
+# if rsyncMirrors == []:
+#     print("  Gentoo rsync mirror(s):       None")
+# else:
+#     print("  Gentoo rsync mirror(s):       %s" % (rsyncMirrors[0]))
+#     for m in rsyncMirrors[1:]:
+#         print("                                %s" % (m))
+# if kernelMirrors == []:
+#     print("  Linux kernel mirror(s): None")
+# else:
+#     print("  Linux kernel mirror(s): %s" % (kernelMirrors[0]))
+#     for m in kernelMirrors[1:]:
+#         print("                          %s" % (m))
+
+#
+# enable pypy and jthon and etc
+#
+# def __pythonCmpTargetsUseFlag(self, useSet, a, b):
+#     assert a.startswith("python_targets_")
+#     assert b.startswith("python_targets_")
+#     a = a.replace("python_targets_", "")
+#     b = b.replace("python_targets_", "")
+#
+#     if a.startswith("python") and b.startswith("python"):
+#         a = float(a.replace("python", "").replace("_", "."))
+#         b = float(b.replace("python", "").replace("_", "."))
+#         return FmUtil.cmpSimple(a, b)
+#
+#     if a.startswith("pypy") and b.startswith("pypy"):
+#         if a == "pypy3" and b == "pypy":
+#             return 1
+#         if a == "pypy" and b == "pypy3":
+#             return -1
+#         if a == b:
+#             return 0
+#         assert False
+#
+#     if a.startswith("python") and b.startswith("pypy"):
+#         a = float(a.replace("python", "").replace("_", "."))
+#         if b == "pypy":
+#             # python2_x < pypy
+#             # python3_x > pypy
+#             if a >= 3.0:
+#                 return 1
+#             else:
+#                 return -1
+#         elif b == "pypy3":
+#             # python2_x < pypy3
+#             # python3_x < pypy3
+#             # python3_x(max minor version) > pypy3
+#             if a < 3.0:
+#                 return -1
+#             for iuse in useSet:
+#                 if iuse.startswith("python_targets_python"):
+#                     iuse = float(iuse.replace("python_targets_python", "").replace("_", "."))
+#                     if a < iuse:
+#                         return -1
+#             return 1
+#         else:
+#             assert False
+#
+#     if a.startswith("pypy") and b.startswith("python"):
+#         return self.__pythonCmpTargetsUseFlag(useSet, "python_targets_" + b, "python_targets_" + a) * -1
+#
+#     if a.startswith("jython") or b.startswith("jython"):
+#         return self.__pythonCmpTargetsUseFlag(useSet, "python_targets_" + a.replace("jython", "python"), "python_targets_" + b.replace("jython", "python"))
+#
+#     assert False
+
+# def _repoGentooClone(self):
+#     repoDir = self.getRepoDir("gentoo")
+#     FmUtil.gitClone("https://github.com/gentoo/gentoo", repoDir)
+
+# def _repoGentooUpdate(self):
+#     repoDir = self.getRepoDir("gentoo")
+#     FmUtil.gitPullOrClone(repoDir, "https://github.com/gentoo/gentoo")
+
+
+
+
+
+
+#            sc = SecretUnstable.Collection.for_alias_sync(None, "login", SecretUnstable.ServiceFlags.NONE)
+#            if sc is not None:
+#                ret = SecretUnstable.Collection.delete(sc)
+#                assert ret
+#            SecretUnstable.Collection.create_sync(None, "login", None)
+
+
+# class FumKeyringNormalUser:
+#
+#    def __init__(self):
+#        self.STORE_SCHEMA = Secret.Schema.new("org.fpemud.FpemudUserManager.NormalUser",
+#            Secret.SchemaFlags.NONE,
+#            { "username": Secret.SchemaAttributeType.STRING }
+#        )
+#
+#    def exists(self, username):
+#        attributes = { "username": username }
+#        ret = Secret.password_lookup_sync(self.STORE_SCHEMA, attributes, None)
+#        return (ret is not None)
+#
+#    def load(self, username):
+#        attributes = { "username": username }
+#        ret = Secret.password_lookup_sync(self.STORE_SCHEMA, attributes, None)
+#        if ret is None:
+#            raise FumKeyringError("no user found in normal user password storage")
+#        return ret
+#
+#    def save(self, username, password):
+#        attributes = { "username": username }
+#        ret = Secret.password_store_sync(self.STORE_SCHEMA, attributes, Secret.COLLECTION_DEFAULT, password)
+#        assert ret
+#
+#    def remove(self, username):
+#        attributes = { "username": username }
+#        ret = Secret.password_clear_sync(self.STORE_SCHEMA, attributes, None)
+#        assert ret
+#
+# class FumKeyringError(Exception):
+#    pass
+
+
+
+
+# # filter SSD, and remove "/dev/" prefix
+# tlist2 = []
+# for fn in tlist:
+#     bn = os.path.basename(fn)
+#     with open("/sys/block/%s/queue/rotational" % (bn), "r") as f:
+#         buf = f.read().strip("\n")
+#         if bu == "1":
+#             tlist2.append(bn)
+# tlist = tlist2
+# pvlist = [x.group(1) for x in re.findall("PV Name +/dev/(\S+)", vgout, re.M)]
+
+# if not FmUtil.isBlkDevSsdOrHdd(ret.ssd):
+#     return None
+
+
+
+
+
+
+# dev-disk-by\x2duuid-9f4a0440\x2dbf39\x2d468a\x2db6c8\x2d8d958c2c1208.swap
+
+# > cat /etc/systemd/system/dev-disk-by\x2duuid-blablablabla.swap
+# [Unit]
+# Description=Swap required for hibernation
+# Before=sleep.target
+
+# [Swap]
+# What=/dev/disk/by-uuid/blablablablabla
+# Priority=5
+# >
+
+
+
+
+
+
+    @staticmethod
+    def geoGetCountry():
+        """Returns (country-code, country-name)"""
+
+        dbusObj = dbus.SystemBus().get_object('org.freedesktop.GeoClue2', '/org/freedesktop/GeoClue2/Manager')
+        clientObj = dbus.SystemBus().get_object('org.freedesktop.GeoClue2', dbusObj.GetClient(dbus_interface='org.freedesktop.GeoClue2.Manager'))
+        clientObj.Set("org.freedesktop.GeoClue2.Client", "DesktopId", "fake.desktop", dbus_interface="org.freedesktop.DBus.Properties")
+        clientObj.Start(dbus_interface="org.freedesktop.GeoClue2.Client")
+        newObj = None
+        try:
+            i = 0
+            while i < 30:
+                ret = clientObj.Get("org.freedesktop.GeoClue2.Client", "Location", dbus_interface="org.freedesktop.DBus.Properties")
+                if ret == "/":
+                    time.sleep(1.0)
+                    i += 1
+                    continue
+                newObj = dbus.SystemBus().get_object('org.freedesktop.GeoClue2', ret)
+                break
+        finally:
+            clientObj.Stop(dbus_interface="org.freedesktop.GeoClue2.Client")
+
+        a1 = newObj.Get("org.freedesktop.GeoClue2.Location", "Latitude", dbus_interface="org.freedesktop.DBus.Properties")
+        a2 = newObj.Get("org.freedesktop.GeoClue2.Location", "Longitude", dbus_interface="org.freedesktop.DBus.Properties")
+        location = geopy.geocoders.Nominatim().reverse("%f, %f" % (a1, a2), exactly_one=True)
+        return (location.raw["address"]["country_code"].upper(), location.raw["address"]["country"])
+
+
+
+
+
+# reads a list of files on stdin and prints out deletion candidates
+pkgfilter() {
+	# there's whitelist and blacklist parameters passed to this
+	# script after the block of awk.
+
+	awk -v keep="$1" -v scanarch="$2" '
+	function basename(str) {
+		sub(".*/", "", str);
+		return str;
+	}
+
+	function parse_filename(filename,     parts, count, i, pkgname, arch) {
+
+		count = split(basename(filename), parts, "-")
+
+		i = 1
+		pkgname = parts[i++]
+		while (i <= count - 3) {
+			pkgname = pkgname "-" parts[i++]
+		}
+
+		arch = substr(parts[count], 1, index(parts[count], ".") - 1)
+
+		# filter on whitelist or blacklist
+		if (wlen && !whitelist[pkgname]) return
+		if (blen && blacklist[pkgname]) return
+
+		if ("" == packages[pkgname,arch]) {
+			packages[pkgname,arch] = filename
+		} else {
+			packages[pkgname,arch] = packages[pkgname,arch] SUBSEP filename
+		}
+	}
+
+	BEGIN {
+		# create whitelist
+		wlen = ARGV[1]; delete ARGV[1]
+		for (i = 2; i < 2 + wlen; i++) {
+			whitelist[ARGV[i]] = 1
+			delete ARGV[i]
+		}
+
+		# create blacklist
+		blen = ARGV[i]; delete ARGV[i]
+		while (i++ < ARGC) {
+			blacklist[ARGV[i]] = 1
+			delete ARGV[i]
+		}
+
+		# read package filenames
+		while (getline < "/dev/stdin") {
+			parse_filename($0)
+		}
+
+		for (pkglist in packages) {
+			# idx[1,2] = idx[pkgname,arch]
+			split(pkglist, idx, SUBSEP)
+
+			# enforce architecture match if specified
+			if (!scanarch || scanarch == idx[2]) {
+				count = split(packages[idx[1], idx[2]], pkgs, SUBSEP)
+				for(i = 1; i <= count - keep; i++) {
+					print pkgs[i]
+				}
+			}
+		}
+	}' "${@:3}"
+}
+
+
+
+
+
+
+    @staticmethod
+    def shellExecCaptureOutput(cmd):
+        mo, so = pty.openpty()
+        me, se = pty.openpty()
+        proc = subprocess.Popen(cmd, stdout=so, stderr=se, shell=True, universal_newlines=True)
+        os.close(so)
+        os.close(se)
+
+        # redirect proc.stdout/proc.stderr to stdout/stderr
+        # make CalledProcessError contain stdout/stderr content
+        result = {mo: "", me: ""}
+        readable = [mo, me]
+        while readable:
+            ready, _, _ = select.select(readable, [], [])
+            for fd in ready:
+                try:
+                    data = os.read(fd, 512)
+                except OSError as e:
+                    if e.errno != errno.EIO:
+                        raise
+                    # EIO means EOF on some systems
+                    readable.remove(fd)
+                else:
+                    if not data: # EOF
+                        readable.remove(fd)
+                    result[fd] += data
+
+        with pselector() as selector:
+            selector.register(os.fdopen(mo, "r"), selectors.EVENT_READ)
+            selector.register(os.fdopen(me, "r"), selectors.EVENT_READ)
+            while selector.get_map():
+                res = selector.select()
+                for key, events in res:
+                    data = key.fileobj.read()
+                    if not data:
+                        selector.unregister(key.fileobj)
+                        continue
+                    if key.fd == mo:
+                        sStdout += data
+                        sys.stdout.write(data)
+                        sys.stdout.flus()
+                    elif key.fd == me:
+                        sStderr += data
+                        sys.stderr.write(data)
+                        sys.stderr.flus()
+                    else:
+                        assert False
+        proc.communicate()
+        os.close(mo)
+        os.close(me)
+
+        if proc.returncode > 128:
+            time.sleep(1.0)
+        if proc.returncode:
+            raise subprocess.CalledProcessError(proc.returncode, proc.args, sStdout, sStderr)
+
+
+
+
+
+class CacheCalculator:
+
+    def getSystemCacheInfo(self):
+        # example for out variable: "12758456513 /var/cache/"
+        out = FmUtil.cmdCall("/usr/bin/du", "/var/cache", "-sb")
+        sz = int(out.split(" ")[0])
+
+
+        pass
+
+    def getUserCacheInfo(self):
+        pass
+
+    def getOneUserCacheInfo(self, uid, userName, homeDir):
+        pass

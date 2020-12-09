@@ -1,0 +1,6 @@
+[Unit]
+Description=Operate on the sucking Gentoo Linux kernel source directory
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/fpemud-refsystem/usr-src-linux.sh
