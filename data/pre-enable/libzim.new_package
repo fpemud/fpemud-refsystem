@@ -1,0 +1,4 @@
+[main]
+name = salfter
+url = https://github.com/gentoo-mirror/salfter
+package = app-arch/libzim
