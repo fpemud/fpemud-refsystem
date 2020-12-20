@@ -14,6 +14,7 @@ import configparser
 import urllib.parse
 from datetime import datetime
 from fm_util import FmUtil
+from fm_util import TempChdir
 from fm_param import FmConst
 
 
@@ -550,6 +551,19 @@ class EbuildRepositories:
         modDir = os.path.join(FmConst.dataDir, "repo-patch", "gentoo")
         for fullfn in glob.glob(os.path.join(modDir, "*.patch")):
             FmUtil.shellCall("/usr/bin/patch -d \"%s\" -p 1 < \"%s\" > /dev/null" % (repoDir, fullfn))
+
+        # new ebuild
+        newEbuildDir = os.path.join(FmConst.dataDir, "repo-patch", "gentoo", "new_ebuild")
+        for fbasename in FmUtil.getFileList(newEbuildDir, 2, "d"):
+            srcFullname = os.path.join(newEbuildDir, fbasename)
+            dstFullname = os.path.join(repoDir, fbasename)
+            ebuildFnList = [os.path.basename(x) for x in glob.glob(os.path.join(srcFullname, "*.ebuild"))]
+
+            FmUtil.ensureDir(dstFullname)
+            FmUtil.cmdExec("/bin/cp -r %s/* %s" % (srcFullname, dstFullname))
+            with TempChdir(dstFullname):
+                for efn in ebuildFnList:
+                    FmUtil.cmdCall("/usr/bin/ebuild", efn, "manifest")
 
         # record update time
         with open(recordFile, "w") as f:
