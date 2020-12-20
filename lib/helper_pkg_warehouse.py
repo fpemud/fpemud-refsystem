@@ -560,7 +560,7 @@ class EbuildRepositories:
             ebuildFnList = [os.path.basename(x) for x in glob.glob(os.path.join(srcFullname, "*.ebuild"))]
 
             FmUtil.ensureDir(dstFullname)
-            FmUtil.cmdExec("/bin/cp -r %s/* %s" % (srcFullname, dstFullname))
+            FmUtil.shellExec("/bin/cp -r %s/* %s" % (srcFullname, dstFullname))
             with TempChdir(dstFullname):
                 for efn in ebuildFnList:
                     FmUtil.cmdCall("/usr/bin/ebuild", efn, "manifest")
