@@ -1,6 +1,9 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# This ebuild is here because we need the not-released namespace feature
+# This ebuild should be removed after klaus-1.5.3 is released
+
 EAPI=7
 
 PYTHON_COMPAT=( python3_{6,7,8,9} )
