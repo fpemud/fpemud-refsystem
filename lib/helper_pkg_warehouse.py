@@ -923,15 +923,13 @@ class EbuildOverlays:
     def _isOverlayUrlAccessible(self, overlayUrl):
         domainName = urllib.parse.urlparse(overlayUrl).hostname
         if FmUtil.isDomainNamePrivate(domainName):
-            for i in range(0, 3):
+            while True:
                 try:
                     socket.gethostbyname(domainName)
                     return True
                 except socket.gaierror as e:
-                    if e.errno == -2 and e.strerror == "Name or service not known":
-                        time.sleep(1.0)
-                        continue
-                    if e.errno == -5 and e.strerror == "No address associated with hostname":
+                    if (e.errno == -2 and e.strerror == "Name or service not known") or (e.errno == -5 and e.strerror == "No address associated with hostname"):
+                        sys.stderr.write(e.strerror)
                         time.sleep(1.0)
                         continue
                     raise
