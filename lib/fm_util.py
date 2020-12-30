@@ -69,30 +69,31 @@ class FmUtil:
     def tryPrivateDomainName(self, domainName):
         # return True: the private domain name is accessabile
         # return False: the private domain name is not accessabile after some test
-        failureCount = 0
-        while failureCount < 3:
+
+        assert FmUtil.isDomainNamePrivate(domainName)
+
+        while True:
             try:
                 socket.gethostbyname(domainName)
                 return True
             except socket.gaierror as e:
                 print(e.errno)
                 print(e.strerror)
-                if e.errno == -2:
-                    assert e.strerror == "Name or service not known"
-                    failureCount += 1
-                elif e.errno == -5:
-                    assert e.strerror == "No address associated with hostname"
-                    failureCount += 1
+                if e.errno == -2:           # Name or service not known
+                    return False
+                elif e.errno == -3:         # Temporary failure in name resolution
+                    pass
+                elif e.errno == -5:         # No address associated with hostname
+                    return False
                 else:
-                    failureCount = 0
+                    raise
                 sys.stderr.write(e.strerror)
                 time.sleep(1.0)
-        return False
 
     @staticmethod
     def isUrlPrivate(url):
         domainName = urllib.parse.urlparse(url).hostname
-        return not FmUtil.isDomainNamePrivate(domainName)
+        return FmUtil.isDomainNamePrivate(domainName)
 
     @staticmethod
     def tryPrivateUrl(self, url):
