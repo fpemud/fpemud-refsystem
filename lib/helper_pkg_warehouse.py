@@ -3,11 +3,8 @@
 
 import os
 import re
-import sys
 import glob
-import time
 import shutil
-import socket
 import portage
 import fileinput
 import subprocess
@@ -855,7 +852,7 @@ class EbuildOverlays:
             # static overlay is mantained by other means
             pass
         elif overlayType == "trusted":
-            if self._isOverlayUrlAccessible(overlayUrl):
+            if not FmUtil.isUrlPrivate(overlayUrl) or FmUtil.tryPrivateUrl(overlayUrl):
                 if vcsType == "git":
                     FmUtil.gitPullOrClone(overlayFilesDir, overlayUrl)
                 elif vcsType == "svn":
@@ -866,7 +863,7 @@ class EbuildOverlays:
             else:
                 print("Overlay not accessible, ignored.")
         elif overlayType == "transient":
-            if self._isOverlayUrlAccessible(overlayUrl):
+            if not FmUtil.isUrlPrivate(overlayUrl) or FmUtil.tryPrivateUrl(overlayUrl):
                 if vcsType == "git":
                     # FmUtil.gitPullOrClone(overlayFilesDir, overlayUrl, shallow=True)        # FIXME
                     FmUtil.gitPullOrClone(overlayFilesDir, overlayUrl)
@@ -921,31 +918,9 @@ class EbuildOverlays:
         FmUtil.forceDelete(os.path.join(overlayDir, pkgName))
         FmUtil.removeEmptyDir(os.path.join(overlayDir, pkgName.split("/")[0]))
 
-    def _isOverlayUrlAccessible(self, overlayUrl):
+    def _getOverlayUrlPublicOrPrivate(self, overlayUrl):
         domainName = urllib.parse.urlparse(overlayUrl).hostname
-        if FmUtil.isDomainNamePrivate(domainName):
-            failureCount = 0
-            while failureCount < 3:
-                try:
-                    socket.gethostbyname(domainName)
-                    return True
-                except socket.gaierror as e:
-                    print(e.errorno)
-                    print(e.strerror)
-                    if e.errno == -2:
-                        assert e.strerror == "Name or service not known"
-                        failureCount += 1
-                    elif e.errno == -5:
-                        assert e.strerror == "No address associated with hostname"
-                        failureCount += 1
-                    else:
-                        failureCount = 0
-                    sys.stderr.write(e.strerror)
-                    time.sleep(1.0)
-            return False
-        else:
-            # we think public domain name is always accessible
-            return True
+        return not FmUtil.isDomainNamePrivate(domainName)
 
     def _createOverlayFilesDir(self, overlayFilesDir, overlayUrl, shallow, quiet=False):
         # vcs-type:git

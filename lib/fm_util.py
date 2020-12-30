@@ -66,6 +66,42 @@ class FmUtil:
         return any(domainName.endswith(x) for x in tldList)
 
     @staticmethod
+    def tryPrivateDomainName(self, domainName):
+        # return True: the private domain name is accessabile
+        # return False: the private domain name is not accessabile after some test
+        failureCount = 0
+        while failureCount < 3:
+            try:
+                socket.gethostbyname(domainName)
+                return True
+            except socket.gaierror as e:
+                print(e.errorno)
+                print(e.strerror)
+                if e.errno == -2:
+                    assert e.strerror == "Name or service not known"
+                    failureCount += 1
+                elif e.errno == -5:
+                    assert e.strerror == "No address associated with hostname"
+                    failureCount += 1
+                else:
+                    failureCount = 0
+                sys.stderr.write(e.strerror)
+                time.sleep(1.0)
+        return False
+
+    @staticmethod
+    def isUrlPrivate(url):
+        domainName = urllib.parse.urlparse(url).hostname
+        return not FmUtil.isDomainNamePrivate(domainName)
+
+    @staticmethod
+    def tryPrivateUrl(self, url):
+        # return True: the private URL is accessabile
+        # return False: the private URL is not accessabile after some test
+        domainName = urllib.parse.urlparse(url).hostname
+        return FmUtil.tryPrivateDomainName(domainName)
+
+    @staticmethod
     def pamParseCfgFile(filename):
         # PAM configuration file consists of directives having the following syntax:
         #   module_interface     control_flag     module_name module_arguments
