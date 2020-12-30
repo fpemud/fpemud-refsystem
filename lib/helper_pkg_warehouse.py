@@ -931,8 +931,8 @@ class EbuildOverlays:
                     if (e.errno == -2 and e.strerror == "Name or service not known") or (e.errno == -5 and e.strerror == "No address associated with hostname"):
                         sys.stderr.write(e.strerror)
                         time.sleep(1.0)
-                        continue
-                    raise
+                    else:
+                        raise
             return False
         else:
             # we think public domain name is always accessible
