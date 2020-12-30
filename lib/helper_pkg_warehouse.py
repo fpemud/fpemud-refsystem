@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 import glob
 import time
 import shutil
@@ -923,16 +924,24 @@ class EbuildOverlays:
     def _isOverlayUrlAccessible(self, overlayUrl):
         domainName = urllib.parse.urlparse(overlayUrl).hostname
         if FmUtil.isDomainNamePrivate(domainName):
-            while True:
+            failureCount = 0
+            while failureCount < 3:
                 try:
                     socket.gethostbyname(domainName)
                     return True
                 except socket.gaierror as e:
-                    if (e.errno == -2 and e.strerror == "Name or service not known") or (e.errno == -5 and e.strerror == "No address associated with hostname"):
-                        sys.stderr.write(e.strerror)
-                        time.sleep(1.0)
+                    print(e.errorno)
+                    print(e.strerror)
+                    if e.errno == -2:
+                        assert e.strerror == "Name or service not known"
+                        failureCount += 1
+                    elif e.errno == -5:
+                        assert e.strerror == "No address associated with hostname"
+                        failureCount += 1
                     else:
-                        raise
+                        failureCount = 0
+                    sys.stderr.write(e.strerror)
+                    time.sleep(1.0)
             return False
         else:
             # we think public domain name is always accessible
