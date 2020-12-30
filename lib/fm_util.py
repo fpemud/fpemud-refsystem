@@ -75,7 +75,7 @@ class FmUtil:
                 socket.gethostbyname(domainName)
                 return True
             except socket.gaierror as e:
-                print(e.errorno)
+                print(e.errno)
                 print(e.strerror)
                 if e.errno == -2:
                     assert e.strerror == "Name or service not known"
