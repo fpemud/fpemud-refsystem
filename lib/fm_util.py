@@ -66,7 +66,7 @@ class FmUtil:
         return any(domainName.endswith(x) for x in tldList)
 
     @staticmethod
-    def tryPrivateDomainName(self, domainName):
+    def tryPrivateDomainName(domainName):
         # return True: the private domain name is accessabile
         # return False: the private domain name is not accessabile after some test
 
@@ -77,8 +77,6 @@ class FmUtil:
                 socket.gethostbyname(domainName)
                 return True
             except socket.gaierror as e:
-                print(e.errno)
-                print(e.strerror)
                 if e.errno == -2:           # Name or service not known
                     return False
                 elif e.errno == -3:         # Temporary failure in name resolution
@@ -96,7 +94,7 @@ class FmUtil:
         return FmUtil.isDomainNamePrivate(domainName)
 
     @staticmethod
-    def tryPrivateUrl(self, url):
+    def tryPrivateUrl(url):
         # return True: the private URL is accessabile
         # return False: the private URL is not accessabile after some test
         domainName = urllib.parse.urlparse(url).hostname
