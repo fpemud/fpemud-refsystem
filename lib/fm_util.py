@@ -55,28 +55,11 @@ class FmUtil:
         return [x["url"] for x in jsonListRegional[0:count]]
 
     @staticmethod
-    def getMirrorsFromPublicMirrorDb2(name, typeName, countryCode, protocolList, count=1):
-        dirn = os.path.join("/usr/share/public-mirror-db", name)
-        if not os.path.exists(dirn):
-            return []
-
-        jsonList = []
-        with open(os.path.join(dirn, typeName + ".json"), "r") as f:
-            jsonList = json.load(f)
-        jsonList = [x for x in jsonList if x["protocol"] in protocolList]
-
-        jsonListRegional = [x for x in jsonList if x["country-code"] == countryCode]
-        return [x["url"] for x in jsonListRegional[0:count]]
-
-    @staticmethod
     def githubGetFileContent(user, repo, filepath):
-        tmpFile = tempfile.mkstemp()
-        try:
-            url = "https://github.com/%s/%s/%s" % (user, repo, filepath)
+        with TempCreateFile() as tmpFile:
+            url = "https://github.com/%s/%s/trunk/%s" % (user, repo, filepath)
             FmUtil.cmdCall("/usr/bin/svn", "export", "-q", "--force", url, tmpFile)
             return FmUtil.readFile(tmpFile)
-        finally:
-            os.unlink(tmpFile)
 
     @staticmethod
     def isDomainNamePrivate(domainName):
@@ -3144,6 +3127,19 @@ class TempChdir:
 
     def __exit__(self, type, value, traceback):
         os.chdir(self.olddir)
+
+
+class TempCreateFile:
+
+    def __init__(self, dir=None):
+        f, self._fn = tempfile.mkstemp(dir=dir)
+        os.close(f)
+
+    def __enter__(self):
+        return self._fn
+
+    def __exit__(self, type, value, traceback):
+        os.unlink(self._fn)
 
 
 class InfoPrinter:
