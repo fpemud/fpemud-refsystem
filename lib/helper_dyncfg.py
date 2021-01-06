@@ -88,10 +88,10 @@ class DynCfgModifier:
         archMirrors = []
         if True:
             countryCode, countryName = FmUtil.geoGetCountry()
-            gentooMirrors = FmUtil.getMirrorsFromPublicMirrorDb("gentoo", "gentoo", countryCode, ["http", "https", "ftp"], 2)
-            rsyncMirrors = FmUtil.getMirrorsFromPublicMirrorDb("gentoo", "gentoo-portage", countryCode, ["rsync"], 2)
-            kernelMirrors = FmUtil.getMirrorsFromPublicMirrorDb("kernel", "kernel", countryCode, ["http", "https", "ftp"], 2)
-            archMirrors = FmUtil.getMirrorsFromPublicMirrorDb("archlinux", "archlinux", countryCode, ["http", "https", "ftp"], 2)
+            gentooMirrors = FmUtil.pmdbGetMirrors("gentoo", "gentoo", countryCode, ["http", "https", "ftp"], 2)
+            rsyncMirrors = FmUtil.pmdbGetMirrors("gentoo", "gentoo-portage", countryCode, ["rsync"], 2)
+            kernelMirrors = FmUtil.pmdbGetMirrors("kernel", "kernel", countryCode, ["http", "https", "ftp"], 2)
+            archMirrors = FmUtil.pmdbGetMirrors("archlinux", "archlinux", countryCode, ["http", "https", "ftp"], 2)
 
         # write to make.conf
         if True:

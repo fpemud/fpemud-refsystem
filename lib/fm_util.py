@@ -46,7 +46,7 @@ from gi.repository import GLib
 class FmUtil:
 
     @staticmethod
-    def getMirrorsFromPublicMirrorDb(name, typeName, countryCode, protocolList, count=1):
+    def pmdbGetMirrors(name, typeName, countryCode, protocolList, count=1):
         buf = FmUtil.githubGetFileContent("mirrorshq", "public-mirror-db", os.path.join(name, typeName + ".json"))
         jsonList = json.loads(buf)
         jsonList = [x for x in jsonList if x["protocol"] in protocolList]
