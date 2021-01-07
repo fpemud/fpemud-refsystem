@@ -484,37 +484,34 @@ class EbuildRepositories:
 
     def createRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
+        with open(self.getRepoCfgReposFile(repoName), "w") as f:
+            f.write(self.__generateReposConfContent(repoName))
         if repoName == "gentoo":
-            self._repoGentooCreate()
+            self._repoGentooCreate(self.getRepoFilesDir("gentoo"))
         elif repoName == "guru":
-            self._repoGuruCreate()
+            self._repoGuruCreate(self.getRepoFilesDir("guru"))
         else:
             assert False
         self.__modifyRepo(repoName)
+        self.__recordUpdateTime(repoName)
+        FmUtil.cmdCall("/bin/ln", "-sf", self.getRepoFilesDir(repoName), self.getRepoDir(repoName))
 
     def syncRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
         if repoName == "gentoo":
-            self._repoGentooSync()
+            self._repoGentooSync(self.getRepoFilesDir("gentoo"))
         elif repoName == "guru":
-            self._repoGuruSync()
+            self._repoGuruSync(self.getRepoFilesDir("guru"))
         else:
             assert False
         self.__modifyRepo(repoName)
+        self.__recordUpdateTime(repoName)
 
-    def _repoGentooCreate(self):
-        with open(self.getRepoCfgReposFile("gentoo"), "w") as f:
-            f.write(self.__generateReposConfContent("gentoo"))
+    def _repoGentooCreate(self, repoFilesDir):
+        FmUtil.ensureDir(repoFilesDir)
+        self._repoGentooSync(repoFilesDir)
 
-        FmUtil.ensureDir(self.getRepoFilesDir("gentoo"))
-        FmUtil.cmdCall("/bin/ln", "-sf", self.getRepoFilesDir("gentoo"), self.getRepoDir("gentoo"))
-        self._repoGentooSync()
-
-    def _repoGentooSync(self):
-        repoDir = self.getRepoDir("gentoo")
-        recordFile = os.path.join(repoDir, "update-time.txt")
-
-        curDate = datetime.now().date()
+    def _repoGentooSync(self, repoFilesDir):
         # lastDate = None
         # try:
         #     with open(recordFile, "r") as f:
@@ -550,42 +547,14 @@ class EbuildRepositories:
 
         # rsync to bleeding edge
         mr = FmUtil.portageGetGentooPortageRsyncMirror(FmConst.portageCfgMakeConf, FmConst.defaultRsyncMirror)
-        FmUtil.rsyncPull("-a -z -hhh --no-motd --delete --info=progress2", mr, repoDir)
+        FmUtil.rsyncPull("-a -z -hhh --no-motd --delete --info=progress2", mr, repoFilesDir)
 
-        # patch
-        modDir = os.path.join(FmConst.dataDir, "repo-patch", "gentoo")
-        for fullfn in glob.glob(os.path.join(modDir, "*.patch")):
-            FmUtil.shellCall("/usr/bin/patch -d \"%s\" -p 1 < \"%s\" > /dev/null" % (repoDir, fullfn))
-
-        # new ebuild
-        newEbuildDir = os.path.join(FmConst.dataDir, "repo-patch", "gentoo", "new_ebuild")
-        for fbasename in FmUtil.getFileList(newEbuildDir, 2, "d"):
-            srcFullname = os.path.join(newEbuildDir, fbasename)
-            dstFullname = os.path.join(repoDir, fbasename)
-            ebuildFnList = [os.path.basename(x) for x in glob.glob(os.path.join(srcFullname, "*.ebuild"))]
-
-            FmUtil.ensureDir(dstFullname)
-            FmUtil.shellExec("/bin/cp -r %s/* %s" % (srcFullname, dstFullname))
-            with TempChdir(dstFullname):
-                for efn in ebuildFnList:
-                    FmUtil.cmdCall("/usr/bin/ebuild", efn, "manifest")
-
-        # record update time
-        with open(recordFile, "w") as f:
-            f.write(curDate.strftime("%Y-%m-%d"))
-            f.write("\n")
-
-    def _repoGuruCreate(self):
-        with open(self.getRepoCfgReposFile("guru"), "w") as f:
-            f.write(self.__generateReposConfContent("guru"))
-
-        repoFilesDir = self.getRepoFilesDir("guru")
+    def _repoGuruCreate(self, repoFilesDir):
         FmUtil.forceDelete(repoFilesDir)
         FmUtil.gitClone("https://github.com/gentoo/guru", repoFilesDir)
-        FmUtil.cmdCall("/bin/ln", "-sf", repoFilesDir, self.getRepoDir("guru"))
 
-    def _repoGuruSync(self):
-        FmUtil.gitPullOrClone(self.getRepoFilesDir("guru"), "https://github.com/gentoo/guru")
+    def _repoGuruSync(self, repoFilesDir):
+        FmUtil.gitPullOrClone(repoFilesDir, "https://github.com/gentoo/guru")
 
     def __generateReposConfContent(self, repoName):
         buf = ""
@@ -628,6 +597,11 @@ class EbuildRepositories:
                 out = FmUtil.cmdCall("python3", fullfn)     # FIXME, should respect shebang
                 if out == "outdated":
                     print("Modify script \"%s\" for \"repo-%s\" is outdated.", fullfn, repoName)
+
+    def __recordUpdateTime(self, repoName):
+        with open(os.path.join(self.getRepoFilesDir(repoName), "update-time.txt"), "w") as f:
+            f.write(datetime.now().date().strftime("%Y-%m-%d"))
+            f.write("\n")
 
 
 class RepositoryCheckError(Exception):
