@@ -401,6 +401,7 @@ class EbuildRepositories:
     def __init__(self):
         self.repoNameList = [
             "gentoo",
+            "guru",
         ]
 
     def getRepositoryList(self):
@@ -485,16 +486,21 @@ class EbuildRepositories:
         """Business exception should not be raise, but be printed as error message"""
         if repoName == "gentoo":
             self._repoGentooCreate()
-            self._repoGentooSync()
+        elif repoName == "guru":
+            self._repoGuruCreate()
         else:
             assert False
+        self.__modifyRepo(repoName)
 
     def syncRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
         if repoName == "gentoo":
             self._repoGentooSync()
+        elif repoName == "guru":
+            self._repoGuruSync()
         else:
             assert False
+        self.__modifyRepo(repoName)
 
     def _repoGentooCreate(self):
         with open(self.getRepoCfgReposFile("gentoo"), "w") as f:
@@ -502,6 +508,7 @@ class EbuildRepositories:
 
         FmUtil.ensureDir(self.getRepoFilesDir("gentoo"))
         FmUtil.cmdCall("/bin/ln", "-sf", self.getRepoFilesDir("gentoo"), self.getRepoDir("gentoo"))
+        self._repoGentooSync()
 
     def _repoGentooSync(self):
         repoDir = self.getRepoDir("gentoo")
@@ -568,6 +575,18 @@ class EbuildRepositories:
             f.write(curDate.strftime("%Y-%m-%d"))
             f.write("\n")
 
+    def _repoGuruCreate(self):
+        with open(self.getRepoCfgReposFile("guru"), "w") as f:
+            f.write(self.__generateReposConfContent("guru"))
+
+        repoFilesDir = self.getRepoFilesDir("guru")
+        FmUtil.forceDelete(repoFilesDir)
+        FmUtil.gitClone("https://github.com/gentoo/guru", repoFilesDir)
+        FmUtil.cmdCall("/bin/ln", "-sf", repoFilesDir, self.getRepoDir("guru"))
+
+    def _repoGuruSync(self):
+        FmUtil.gitPullOrClone(self.getRepoFilesDir("guru"), "https://github.com/gentoo/guru")
+
     def __generateReposConfContent(self, repoName):
         buf = ""
         buf += "[%s]\n" % (repoName)
@@ -575,6 +594,40 @@ class EbuildRepositories:
         buf += "priority = 5000\n"
         buf += "location = %s\n" % (self.getRepoDir(repoName))
         return buf
+
+    def __modifyRepo(self, repoName):
+        modDir = os.path.join(FmConst.dataDir, "repo-patch", repoName)
+
+        # modify eclass files
+        elcassDir = os.path.join(modDir, "eclass")
+        if os.path.exists(elcassDir):
+            dstDir = os.path.join(self.getRepoFilesDir(repoName), "eclass")
+            self.___execModifyScripts(repoName, elcassDir, dstDir)
+
+        # modify profile files
+        profilesDir = os.path.join(modDir, "profiles")
+        if os.path.exists(profilesDir):
+            for profileDir in FmUtil.getLeafDirList(profilesDir):
+                srcDir = os.path.join(modDir, "profiles", profileDir)
+                dstDir = os.path.join(self.getRepoFilesDir(repoName), "profiles", profileDir)
+                self.___execModifyScripts(repoName, srcDir, dstDir)
+
+        # modify packages
+        for categoryDir in os.listdir(modDir):
+            if categoryDir in ["eclass", "profiles"]:
+                continue
+            for ebuildDir in os.listdir(os.path.join(modDir, categoryDir)):
+                srcDir = os.path.join(modDir, categoryDir, ebuildDir)
+                dstDir = os.path.join(self.getRepoFilesDir(repoName), categoryDir, ebuildDir)
+                self.___execModifyScripts(repoName, srcDir, dstDir)
+
+    def ___execModifyScripts(self, repoName, srcDir, dstDir):
+        for fullfn in glob.glob(os.path.join(srcDir, "*")):
+            with TempChdir(dstDir):
+                assert fullfn.endswith(".py")
+                out = FmUtil.cmdCall("python3", fullfn)     # FIXME, should respect shebang
+                if out == "outdated":
+                    print("Modify script \"%s\" for \"repo-%s\" is outdated.", fullfn, repoName)
 
 
 class RepositoryCheckError(Exception):

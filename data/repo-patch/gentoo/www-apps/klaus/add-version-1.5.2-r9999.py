@@ -1,3 +1,13 @@
+
+#!/usr/bin/python3
+# -*- coding: utf-8; tab-width: 4; indent-tabs-mode: t -*-
+
+import os
+import subprocess
+
+if os.path.exists("klaus-1.5.2.ebuild"):
+	with open("klaus-1.5.2-r9999.ebuild", "w") as f:
+		f.write("""
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -36,3 +46,7 @@ python_install_all() {
 	distutils-r1_python_install_all
 	doman ${PN}.1
 }
+""")
+	subprocess.run(["ebuild", "klaus-1.5.2-r9999.ebuild", "manifest"])
+else:
+    print("outdated")    

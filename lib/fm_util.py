@@ -2141,6 +2141,16 @@ class FmUtil:
         return ret
 
     @staticmethod
+    def getLeafDirList(dirName, includeSelf=False):
+        ret = []
+        for root, dirs, files in os.walk(dirName):
+            if not includeSelf and root == dirName:
+                continue
+            if len(dirs) == 0:
+                ret.append(root)
+        return ret
+
+    @staticmethod
     def updateDir(oriDir, newDir, keepList=[]):
         """Update oriDir by newDir, meta-data is also merged
            Elements in keepList are glob patterns, and they should not appear in newDir"""
