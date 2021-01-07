@@ -585,18 +585,26 @@ class EbuildRepositories:
         for categoryDir in os.listdir(modDir):
             if categoryDir in ["eclass", "profiles"]:
                 continue
-            for ebuildDir in os.listdir(os.path.join(modDir, categoryDir)):
+            fullCategoryDir = os.path.join(modDir, categoryDir)
+            for ebuildDir in os.listdir(fullCategoryDir):
                 srcDir = os.path.join(modDir, categoryDir, ebuildDir)
                 dstDir = os.path.join(self.getRepoFilesDir(repoName), categoryDir, ebuildDir)
                 self.___execModifyScripts(repoName, srcDir, dstDir)
+                if len(os.listdir(fullCategoryDir)) == 0:
+                    FmUtil.forceDelete(fullCategoryDir)
 
     def ___execModifyScripts(self, repoName, srcDir, dstDir):
         for fullfn in glob.glob(os.path.join(srcDir, "*")):
+            out = None
             with TempChdir(dstDir):
                 assert fullfn.endswith(".py")
                 out = FmUtil.cmdCall("python3", fullfn)     # FIXME, should respect shebang
-                if out == "outdated":
-                    print("Modify script \"%s\" for \"repo-%s\" is outdated.", fullfn, repoName)
+            if out == "remove":
+                FmUtil.forceDelete(dstDir)
+            elif out == "outdated":
+                print("Modify script \"%s\" for \"repo-%s\" is outdated.", fullfn, repoName)
+            else:
+                assert out == ""
 
     def __recordUpdateTime(self, repoName):
         with open(os.path.join(self.getRepoFilesDir(repoName), "update-time.txt"), "w") as f:
