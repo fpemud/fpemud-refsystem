@@ -2,6 +2,7 @@
 dev-lang/mono              -~x86 -~amd64
 dev-lang/nasm              -~x86 -~amd64
 dev-lang/perl              -~x86 -~amd64
+dev-perl/*                 -~x86 -~amd64
 dev-lang/python            -~x86 -~amd64
 dev-lang/ruby              -~x86 -~amd64
 dev-lang/rust              -~x86 -~amd64
