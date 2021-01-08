@@ -498,12 +498,12 @@ class EbuildRepositories:
 
     def syncRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
-        # if repoName == "gentoo":
-        #     self._repoGentooSync(self.getRepoFilesDir("gentoo"))
-        # elif repoName == "guru":
-        #     self._repoGuruSync(self.getRepoFilesDir("guru"))
-        # else:
-        #     assert False
+        if repoName == "gentoo":
+            self._repoGentooSync(self.getRepoFilesDir("gentoo"))
+        elif repoName == "guru":
+            self._repoGuruSync(self.getRepoFilesDir("guru"))
+        else:
+            assert False
         self.__modifyRepo(repoName)
         self.__recordUpdateTime(repoName)
 
@@ -592,7 +592,6 @@ class EbuildRepositories:
         profilesDir = os.path.join(modDir, "profiles")
         if os.path.exists(profilesDir):
             for profileDir in FmUtil.listLeafDirs(profilesDir):
-                print(profileDir)
                 srcDir = os.path.join(modDir, "profiles", profileDir)
                 dstDir = os.path.join(self.getRepoFilesDir(repoName), "profiles", profileDir)
                 _execModifyScripts(repoName, modDir, srcDir, dstDir)
