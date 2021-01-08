@@ -498,12 +498,12 @@ class EbuildRepositories:
 
     def syncRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
-        if repoName == "gentoo":
-            self._repoGentooSync(self.getRepoFilesDir("gentoo"))
-        elif repoName == "guru":
-            self._repoGuruSync(self.getRepoFilesDir("guru"))
-        else:
-            assert False
+        # if repoName == "gentoo":
+        #     self._repoGentooSync(self.getRepoFilesDir("gentoo"))
+        # elif repoName == "guru":
+        #     self._repoGuruSync(self.getRepoFilesDir("guru"))
+        # else:
+        #     assert False
         self.__modifyRepo(repoName)
         self.__recordUpdateTime(repoName)
 
@@ -567,19 +567,35 @@ class EbuildRepositories:
     def __modifyRepo(self, repoName):
         modDir = os.path.join(FmConst.dataDir, "repo-patch", repoName)
 
+        def _execModifyScripts(repoName, modDir, srcDir, dstDir):
+            for fullfn in glob.glob(os.path.join(srcDir, "*")):
+                out = None
+                with TempChdir(dstDir):
+                    assert fullfn.endswith(".py")
+                    out = FmUtil.cmdCall("python3", fullfn)     # FIXME, should respect shebang
+                if out == "remove":
+                    FmUtil.forceDelete(dstDir)
+                elif out == "outdated":
+                    print("Modify script \"%s\" for \"repo-%s\" is outdated." % (fullfn[len(modDir) + 1:], repoName))
+                elif out == "":
+                    pass
+                else:
+                    raise Exception("Modify script \"%s\" for \"repo-%s\" exits with error \"%s\"." % (fullfn[len(modDir) + 1:], repoName, out))
+
         # modify eclass files
         elcassDir = os.path.join(modDir, "eclass")
         if os.path.exists(elcassDir):
             dstDir = os.path.join(self.getRepoFilesDir(repoName), "eclass")
-            self.___execModifyScripts(repoName, elcassDir, dstDir)
+            _execModifyScripts(repoName, modDir, elcassDir, dstDir)
 
         # modify profile files
         profilesDir = os.path.join(modDir, "profiles")
         if os.path.exists(profilesDir):
-            for profileDir in FmUtil.getLeafDirList(profilesDir):
+            for profileDir in FmUtil.listLeafDirs(profilesDir):
+                print(profileDir)
                 srcDir = os.path.join(modDir, "profiles", profileDir)
                 dstDir = os.path.join(self.getRepoFilesDir(repoName), "profiles", profileDir)
-                self.___execModifyScripts(repoName, srcDir, dstDir)
+                _execModifyScripts(repoName, modDir, srcDir, dstDir)
 
         # modify packages
         for categoryDir in os.listdir(modDir):
@@ -589,22 +605,9 @@ class EbuildRepositories:
             for ebuildDir in os.listdir(fullCategoryDir):
                 srcDir = os.path.join(modDir, categoryDir, ebuildDir)
                 dstDir = os.path.join(self.getRepoFilesDir(repoName), categoryDir, ebuildDir)
-                self.___execModifyScripts(repoName, srcDir, dstDir)
+                _execModifyScripts(repoName, modDir, srcDir, dstDir)
                 if len(os.listdir(fullCategoryDir)) == 0:
                     FmUtil.forceDelete(fullCategoryDir)
-
-    def ___execModifyScripts(self, repoName, srcDir, dstDir):
-        for fullfn in glob.glob(os.path.join(srcDir, "*")):
-            out = None
-            with TempChdir(dstDir):
-                assert fullfn.endswith(".py")
-                out = FmUtil.cmdCall("python3", fullfn)     # FIXME, should respect shebang
-            if out == "remove":
-                FmUtil.forceDelete(dstDir)
-            elif out == "outdated":
-                print("Modify script \"%s\" for \"repo-%s\" is outdated.", fullfn, repoName)
-            else:
-                assert out == ""
 
     def __recordUpdateTime(self, repoName):
         with open(os.path.join(self.getRepoFilesDir(repoName), "update-time.txt"), "w") as f:

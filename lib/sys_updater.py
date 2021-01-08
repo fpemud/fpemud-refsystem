@@ -44,11 +44,11 @@ class FmSysUpdater:
 
         # modify dynamic config
         self.infoPrinter.printInfo(">> Refreshing system configuration...")
-        if True:
-            dcm = DynCfgModifier()
-            dcm.updateMirrors()
-            dcm.updateDownloadCommand()
-            dcm.updateParallelism(self.param.hwInfoGetter.current())
+        # if True:
+        #     dcm = DynCfgModifier()
+        #     dcm.updateMirrors()
+        #     dcm.updateDownloadCommand()
+        #     dcm.updateParallelism(self.param.hwInfoGetter.current())
         print("")
 
         # get build server
@@ -70,7 +70,7 @@ class FmSysUpdater:
         if bSync or (not bSync and not bFetch and not bBuild):
             # update cache
             self.infoPrinter.printInfo(">> Getting system component version...")
-            self._execAndSyncDownQuietly(buildServer, self.opSync, "sync-kcache", FmConst.kcacheDir)
+            # self._execAndSyncDownQuietly(buildServer, self.opSync, "sync-kcache", FmConst.kcacheDir)
             print("")
 
             # sync repository directories

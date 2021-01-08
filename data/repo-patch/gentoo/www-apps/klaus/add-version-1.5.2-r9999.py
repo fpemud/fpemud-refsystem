@@ -47,6 +47,6 @@ python_install_all() {
 	doman ${PN}.1
 }
 """)
-	subprocess.run(["ebuild", "klaus-1.5.2-r9999.ebuild", "manifest"])
+	subprocess.run(["ebuild", "klaus-1.5.2-r9999.ebuild", "manifest"], stdout=subprocess.DEVNULL)
 else:
     print("outdated")    

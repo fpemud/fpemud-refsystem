@@ -11,7 +11,7 @@ for fn in glob.glob("*.ebuild"):
     if "python3_{6,7}" in buf:
         with open(fn, "w") as f:
             f.write(buf.replace("python3_{6,7}", "python3_{6,7,8,9}"))
-        subprocess.run(["ebuild", fn, "manifest"])
+        subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)
         bProcessed = True
 
 if not bProcessed:

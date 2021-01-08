@@ -2141,13 +2141,21 @@ class FmUtil:
         return ret
 
     @staticmethod
-    def getLeafDirList(dirName, includeSelf=False):
+    def listLeafDirs(dirName):
         ret = []
+
+        dirName = os.path.abspath(dirName)
+        if dirName == "/":
+            prefixLen = 1
+        else:
+            prefixLen = len(dirName) + 1
+
         for root, dirs, files in os.walk(dirName):
-            if not includeSelf and root == dirName:
+            if root == dirName:
                 continue
             if len(dirs) == 0:
-                ret.append(root)
+                ret.append(root[prefixLen:])
+
         return ret
 
     @staticmethod
