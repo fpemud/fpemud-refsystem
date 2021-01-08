@@ -15,6 +15,7 @@ sys-boot/grub              -~x86 -~amd64
 sys-devel/binutils         -~x86 -~amd64
 sys-devel/gcc              -~x86 -~amd64
 sys-devel/llvm             -~x86 -~amd64
+sys-devel/clang            -~x86 -~amd64
 sys-libs/glibc             -~x86 -~amd64
 virtual/rust               -~x86 -~amd64
 
