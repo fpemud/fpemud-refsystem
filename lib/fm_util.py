@@ -53,10 +53,7 @@ class FmUtil:
         jsonList = [x for x in jsonList if x["protocol"] in protocolList]
 
         # filter by countryCode
-        if True:
-            jsonListRegional = [x for x in jsonList if x["country-code"] == countryCode]
-            if len(jsonListRegional) > 0:
-                jsonList = jsonListRegional
+        jsonList = [x for x in jsonList if x["country-code"] == countryCode]
 
         # filter by count
         if count is not None:
