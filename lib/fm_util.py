@@ -9,7 +9,6 @@ import pwd
 import grp
 import spwd
 import json
-import pty
 import glob
 import stat
 import errno
@@ -46,12 +45,16 @@ from gi.repository import GLib
 class FmUtil:
 
     @staticmethod
-    def pmdbGetMirrors(name, typeName, countryCode, protocolList, count=1):
+    def pmdbGetMirrors(name, typeName, countryCode, protocolList, count=None):
         buf = FmUtil.githubGetFileContent("mirrorshq", "public-mirror-db", os.path.join(name, typeName + ".json"))
         jsonList = json.loads(buf)
         jsonList = [x for x in jsonList if x["protocol"] in protocolList]
 
         jsonListRegional = [x for x in jsonList if x["country-code"] == countryCode]
+        if count is None:
+            count = len(jsonListRegional)
+        else:
+            count = min(len(jsonListRegional), count)
         return [x["url"] for x in jsonListRegional[0:count]]
 
     @staticmethod
