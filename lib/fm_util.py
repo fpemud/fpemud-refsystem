@@ -48,14 +48,22 @@ class FmUtil:
     def pmdbGetMirrors(name, typeName, countryCode, protocolList, count=None):
         buf = FmUtil.githubGetFileContent("mirrorshq", "public-mirror-db", os.path.join(name, typeName + ".json"))
         jsonList = json.loads(buf)
+
+        # filter by protocolList
         jsonList = [x for x in jsonList if x["protocol"] in protocolList]
 
-        jsonListRegional = [x for x in jsonList if x["country-code"] == countryCode]
-        if count is None:
-            count = len(jsonListRegional)
-        else:
-            count = min(len(jsonListRegional), count)
-        return [x["url"] for x in jsonListRegional[0:count]]
+        # filter by countryCode
+        if True:
+            jsonListRegional = [x for x in jsonList if x["country-code"] == countryCode]
+            if len(jsonListRegional) > 0:
+                jsonList = jsonListRegional
+
+        # filter by count
+        if count is not None:
+            jsonList = jsonList[0:min(len(jsonList), count)]
+
+        # return value
+        return [x["url"] for x in jsonList]
 
     @staticmethod
     def githubGetFileContent(user, repo, filepath):
