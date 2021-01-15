@@ -221,8 +221,8 @@ Directory structure:
        |-- repos.conf
        |     | -- ... (auto-filled)
        |-- package.mask
-       |     |-- 01-base       -> /usr/share/fpemud-refsystem/package.mask.base
-       |     |-- 02-base_patch -> /usr/share/fpemud-refsystem/package.mask.base_patch
+       |     |-- 01-base        -> /usr/share/fpemud-refsystem/package.mask.base
+       |     |-- 02-base_bugfix -> /usr/share/fpemud-refsystem/package.mask.base_bugfix
        |     |-- bugfix
        |-- package.unmask
        |     |-- 01-base -> /usr/share/fpemud-refsystem/package.unmask

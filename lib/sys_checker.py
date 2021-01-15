@@ -948,8 +948,6 @@ class FmSysChecker:
                                      commonDir, "package.mask.base")
         self.__checkAndFixEtcSymlink(FmConst.portageCfgMaskDir, "?-base_bugfix",        # /etc/portage/package.mask/02-base_bugfix
                                      commonDir, "package.mask.base_bugfix")
-        self.__checkAndFixEtcSymlink(FmConst.portageCfgMaskDir, "?-base_patch",         # /etc/portage/package.mask/03-base_patch
-                                     commonDir, "package.mask.base_patch")
 
         # /etc/portage/package.mask/bugfix
         self.__checkAndFixEtcEmptyFile(FmConst.portageCfgMaskDir, "bugfix")
