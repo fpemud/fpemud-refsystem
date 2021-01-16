@@ -48,10 +48,4 @@ hook_post_src_install() {
 			return
 		fi
 	done
-
-	# /usr merge check
-	find "${D}/bin" "${D}/usr/bin" -maxdepth 1 -name "*" -not -path "${D}/bin" -not -path "${D}/usr/bin" -exec basename {} \; | sort | uniq -d | grep -q ^ && die "same file in /bin and /usr/bin"
-	find "${D}/sbin" "${D}/usr/sbin" -maxdepth 1 -name "*" -not -path "${D}/sbin" -not -path "${D}/usr/sbin" -exec basename {} \; | sort | uniq -d | grep -q ^ && die "same file in /sbin and /usr/sbin"
-	find "${D}/lib" "${D}/usr/lib" -maxdepth 1 -name "*" -not -path "${D}/lib" -not -path "${D}/usr/lib" -exec basename {} \; | sort | uniq -d | grep -q ^ && die "same file in /lib and /usr/lib"
-	find "${D}/lib64" "${D}/usr/lib64" -maxdepth 1 -name "*" -not -path "${D}/lib64" -not -path "${D}/usr/lib64" -exec basename {} \; | sort | uniq -d | grep -q ^ && die "same file in /lib64 and /usr/lib64"
 }
