@@ -864,15 +864,18 @@ class EbuildOverlays:
         else:
             assert False
 
+        # get repoName of overlay
+        realRepoName = FmUtil.repoGetRepoName(overlayDir)
+        if realRepoName is None:
+            raise OverlayCheckError("can not get repo-name of overlay \"%s\"" % (overlayName))
+
         # check cfgFile again
-        if True:
-            repoName2 = FmUtil.repoGetRepoName(overlayDir)
-            if repoName != repoName2:
-                if bAutoFix:
-                    with open(cfgFile, "w") as f:
-                        f.write(self._generateCfgReposFile(overlayName, overlayDir, overlayType, vcsType, overlayUrl, repoName2))
-                else:
-                    raise OverlayCheckError("invalid \"repo-name\" in \"%s\"" % (cfgFile))
+        if repoName != realRepoName:
+            if bAutoFix:
+                with open(cfgFile, "w") as f:
+                    f.write(self._generateCfgReposFile(overlayName, overlayDir, overlayType, vcsType, overlayUrl, realRepoName))
+            else:
+                raise OverlayCheckError("invalid \"repo-name\" in \"%s\"" % (cfgFile))
 
     def syncOverlay(self, overlayName):
         if not self.isOverlayExist(overlayName):

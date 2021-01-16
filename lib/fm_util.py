@@ -1817,7 +1817,8 @@ class FmUtil:
         if os.path.exists(repoNameFn):
             return FmUtil.readFile(repoNameFn).rstrip("\n")
 
-        assert False
+        # fatal error: can not get repoName
+        return None
 
     @staticmethod
     def wgetSpider(url):
