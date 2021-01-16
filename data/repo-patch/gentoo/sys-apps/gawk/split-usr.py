@@ -9,7 +9,7 @@ import subprocess
 found = False
 for fn in glob.glob("*.ebuild"):
     buf = pathlib.Path(fn).read_text()
-    if re.search("IUSE=.*split-usr.*", re.M) is not None:
+    if re.search("IUSE=.*split-usr.*", buf, re.M) is not None:
         continue
 
     buf2 = buf.replace("IUSE=\"", "IUSE=\"+split-usr ")

@@ -30,6 +30,7 @@ hook_post_src_install() {
 	local POSTPATCH_SOURCE
 	local check
 	local base=/usr/share/fpemud-refsystem/etc-common/patch.base_post
+
 	for check in {${CATEGORY}/${PF},${CATEGORY}/${P},${CATEGORY}/${PN}}; do
 		POSTPATCH_SOURCE=${base}/${CTARGET}/${check}
 		[[ -r ${POSTPATCH_SOURCE} ]] || POSTPATCH_SOURCE=${base}/${CHOST}/${check}
@@ -46,4 +47,8 @@ hook_post_src_install() {
 			return
 		fi
 	done
+
+#	find /lib64 /usr/lib64 -maxdepth 1 -name "*" -not -path /lib64 -not -path /usr/lib64 -exec basename {} \; | sort | uniq -d
+
+
 }
