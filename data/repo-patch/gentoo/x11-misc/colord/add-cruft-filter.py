@@ -5,8 +5,8 @@ import os
 import subprocess
 
 for fn in glob.glob("*.ebuild"):
-	with open(fn, "a") as f:
-		f.write("""
+    with open(fn, "a") as f:
+        f.write("""
 pkg_cruft_filter()
 {
         echo "/var/lib/color"
@@ -15,4 +15,4 @@ pkg_cruft_filter()
         echo "/var/lib/colord/*"
 }
 """)
-	subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)
+    subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)

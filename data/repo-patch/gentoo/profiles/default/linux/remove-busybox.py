@@ -8,4 +8,4 @@ if "*sys-apps/busybox\n" in buf:
     with open("./packages", "w") as f:
         f.write(buf.replace("*sys-apps/busybox\n", ""))
 else:
-    print("outdated")    
+    print("outdated")

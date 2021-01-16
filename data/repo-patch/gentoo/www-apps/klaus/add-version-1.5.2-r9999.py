@@ -6,8 +6,8 @@ import os
 import subprocess
 
 if os.path.exists("klaus-1.5.2.ebuild"):
-	with open("klaus-1.5.2-r9999.ebuild", "w") as f:
-		f.write("""
+    with open("klaus-1.5.2-r9999.ebuild", "w") as f:
+        f.write("""
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -47,6 +47,6 @@ python_install_all() {
 	doman ${PN}.1
 }
 """)
-	subprocess.run(["ebuild", "klaus-1.5.2-r9999.ebuild", "manifest"], stdout=subprocess.DEVNULL)
+    subprocess.run(["ebuild", "klaus-1.5.2-r9999.ebuild", "manifest"], stdout=subprocess.DEVNULL)
 else:
-    print("outdated")    
+    print("outdated")
