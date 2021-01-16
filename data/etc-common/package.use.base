@@ -181,7 +181,7 @@ sys-apps/smartmontools                                                          
 x11-misc/lightdm                                                                                           -gtk
 
 # we use wayland
-*/*								                                                                           -X
+*/*                                                                                                        -X
 app-emulation/wine-vanilla                                                                                 X            # wine has no wayland support, it has to use Xwayland
 app-emulation/wine-d3d9                                                                                    X
 app-emulation/wine-staging                                                                                 X
@@ -191,6 +191,9 @@ gui-wm/wayfire                                                                  
 
 # don't use package built-in component
 app-editors/vscode                                                                                         system-electron system-ripgrep
+
+# for /usr merge
+*/*                                                                                                        -split-usr
 
 # package specified flags
 net-wireless/iwd                                                    -systemd                            # don't use systemd-resolve
