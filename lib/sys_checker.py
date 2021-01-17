@@ -15,6 +15,7 @@ import fnmatch
 import portage
 import filecmp
 import strict_pgs
+import strict_fsh
 from fm_util import FmUtil
 from fm_util import TmpMount
 from fm_param import FmConst
@@ -71,6 +72,7 @@ class FmSysChecker:
         self.infoPrinter.printInfo(">> Check storage layout...")
         self.infoPrinter.incIndent()
         self._checkItemStorageLayout()
+        self._checkItemFileSystemLayout()
         self.infoPrinter.decIndent()
 
         self.infoPrinter.printInfo(">> Check operating system...")
@@ -395,6 +397,13 @@ class FmSysChecker:
         #     else:
         #         assert False
         # self.infoPrinter.decIndent()
+
+    def _checkItemFileSystemLayout(self):
+        obj = strict_fsh.FileSystemHierarchy()
+        if not self.bAutoFix:
+            obj.check()
+        else:
+            obj.fixate()
 
     def _checkMachineInfo(self):
         """Check /etc/machine-info"""
