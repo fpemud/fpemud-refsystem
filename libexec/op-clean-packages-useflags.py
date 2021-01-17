@@ -28,16 +28,26 @@ while True:
         FmUtil.cmdExec("/usr/bin/emerge", "--depclean", "--pretend")
     print("")
 
+    # clean python
+    if os.path.exists("/usr/share/eselect/modules/python.eselect"):
+        print("        - Cycle %d: cleaning python..." % (i))
+        if not bPretend:
+            FmUtil.cmdCall("/usr/bin/eselect", "python", "cleanup")
+        else:
+            FmUtil.cmdCall("/usr/bin/eselect", "python", "list")
+        print("")
+
     # clean perl
-    print("        - Cycle %d: cleaning perl related packages..." % (i))
-    if not bPretend:
-        list1 = FmUtil.getFileList(FmConst.portageDbDir, 2, "d")
-        FmUtil.cmdCall("/usr/sbin/perl-cleaner", "--all")
-        list2 = FmUtil.getFileList(FmConst.portageDbDir, 2, "d")
-        pkgChanged |= (list1 != list2)
-    else:
-        FmUtil.cmdExec("/usr/sbin/perl-cleaner", "--all", "-p")
-    print("")
+    if os.path.exists("/usr/sbin/perl-cleaner"):
+        print("        - Cycle %d: cleaning perl related packages..." % (i))
+        if not bPretend:
+            list1 = FmUtil.getFileList(FmConst.portageDbDir, 2, "d")
+            FmUtil.cmdCall("/usr/sbin/perl-cleaner", "--all")
+            list2 = FmUtil.getFileList(FmConst.portageDbDir, 2, "d")
+            pkgChanged |= (list1 != list2)
+        else:
+            FmUtil.cmdExec("/usr/sbin/perl-cleaner", "--all", "-p")
+        print("")
 
     # clean preserved libraries
     print("        - Cycle %d: cleaning preserved libraries..." % (i))
