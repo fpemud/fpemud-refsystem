@@ -9,7 +9,6 @@ for fn in glob.glob("*.ebuild"):
         f.write("""
 pkg_extra_files()
 {
-        echo "[home]"
         echo "~/.config/brasero"
         echo "~/.config/brasero/***"
 }

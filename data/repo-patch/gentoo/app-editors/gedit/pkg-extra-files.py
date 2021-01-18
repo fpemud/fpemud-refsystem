@@ -9,8 +9,8 @@ for fn in glob.glob("*.ebuild"):
         f.write("""
 pkg_extra_files()
 {
-        echo "~/.local/share/orca"
-        echo "~/.local/share/orca/***"
+        echo "~/.config/gedit"
+        echo "~/.config/gedit/***"
 }
 """)
     subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)
