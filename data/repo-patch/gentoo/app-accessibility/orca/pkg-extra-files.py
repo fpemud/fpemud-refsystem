@@ -7,12 +7,11 @@ import subprocess
 for fn in glob.glob("*.ebuild"):
     with open(fn, "a") as f:
         f.write("""
-pkg_cruft_filter()
+pkg_extra_files()
 {
-        echo "/var/lib/color"
-        echo "/var/lib/color/*"
-        echo "/var/lib/colord"
-        echo "/var/lib/colord/*"
+        echo "[home]"
+        echo "~/.local/share/orca"
+        echo "~/.local/share/orca/***"
 }
 """)
     subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)

@@ -7,15 +7,15 @@ import subprocess
 for fn in glob.glob("*.ebuild"):
     with open(fn, "a") as f:
         f.write("""
-pkg_cruft_filter()
+pkg_extra_files()
 {
+        echo "[var]"
         echo "/var/lib/sddm"
-}
+        echo "/var/lib/sddm/***"
 
-pkg_cruft_filter_user()
-{
-        echo ".local/share/sddm"
-        echo ".local/share/sddm/*"
+        echo "[home]"
+        echo "~/.local/share/sddm"
+        echo "~/.local/share/sddm/***"
 }
 """)
     subprocess.run(["ebuild", fn, "manifest"], stdout=subprocess.DEVNULL)
