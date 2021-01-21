@@ -191,6 +191,7 @@ gui-wm/wayfire                                                                  
 
 # don't use package built-in component
 app-editors/vscode                                                                                         system-electron system-ripgrep
+net-libs/nodejs                                                                                            system-icu
 
 # for /usr merge
 */*                                                                                                        -split-usr

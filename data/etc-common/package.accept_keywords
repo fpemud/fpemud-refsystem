@@ -41,6 +41,9 @@ virtual/rust               -~x86 -~amd64
 # vala
 dev-lang/vala              -~x86 -~amd64
 
+# nodejs
+net-libs/nodejs            -~x86 -~amd64
+
 # policykit
 sys-auth/polkit            -~x86 -~amd64
 
