@@ -192,6 +192,7 @@ gui-wm/wayfire                                                                  
 # don't use package built-in component
 app-editors/vscode                                                                                         system-electron system-ripgrep
 net-libs/nodejs                                                                                            system-icu
+net-im/zoom                                                                                                -bundled-qt
 
 # for /usr merge
 */*                                                                                                        -split-usr
@@ -218,7 +219,7 @@ www-apps/gogs                                                       -pam
 dev-games/mygui                                                     -opengl         # mygui[ogre] is more common, ogre is a opengl wrapper
 */*                                                                 glamor -xa -xv -xvmc				# xorg related
 net-misc/networkmanager                                             -modemmanager
-net-im/zoom                                                         -bundled-qt
+dev-lang/php                                                        gd              # it seems many other use flag needs it
 
 # 
 x11-base/xorg-server                        -elogind                        # why it enables by default?
