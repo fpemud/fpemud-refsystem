@@ -31,8 +31,9 @@ virtual/perl-*             -~x86 -~amd64
 dev-lang/python            -~x86 -~amd64
 
 # php
-dev-lang/php               -~x86 -~amd64
-dev-php/*                  -~x86 -~amd64
+# there're so many packages with no stable version
+#dev-lang/php               -~x86 -~amd64
+#dev-php/*                  -~x86 -~amd64
 
 # ruby
 dev-lang/ruby              -~x86 -~amd64
