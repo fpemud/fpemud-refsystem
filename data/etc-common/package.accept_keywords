@@ -32,6 +32,7 @@ dev-lang/python            -~x86 -~amd64
 
 # php
 dev-lang/php               -~x86 -~amd64
+dev-php/*                  -~x86 -~amd64
 
 # ruby
 dev-lang/ruby              -~x86 -~amd64
