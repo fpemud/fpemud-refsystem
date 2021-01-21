@@ -220,6 +220,7 @@ dev-games/mygui                                                     -opengl     
 */*                                                                 glamor -xa -xv -xvmc				# xorg related
 net-misc/networkmanager                                             -modemmanager
 dev-lang/php                                                        gd              # it seems many other use flag needs it
+media-gfx/imagemagick                                               -openmp         # bug 547922
 
 # 
 x11-base/xorg-server                        -elogind                        # why it enables by default?
