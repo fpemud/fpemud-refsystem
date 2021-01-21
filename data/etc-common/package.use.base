@@ -216,7 +216,7 @@ net-misc/xrdp                                                       fuse
 sys-block/gparted                                                   f2fs fat hfs jfs ntfs reiserfs udf xfs
 media-libs/libcanberra                                              -udev
 www-apps/gogs                                                       -pam
-dev-games/mygui                                                     -opengl         # mygui[ogre] is more common, ogre is a opengl wrapper
+dev-games/mygui                                                     -opengl         # mygui[ogre] is more common, ogre is an opengl wrapper
 */*                                                                 glamor -xa -xv -xvmc				# xorg related
 net-misc/networkmanager                                             -modemmanager
 dev-lang/php                                                        gd              # it seems many other use flag needs it
