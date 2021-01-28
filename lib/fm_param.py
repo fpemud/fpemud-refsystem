@@ -36,7 +36,6 @@ class FmConst:
     configArchiveDir = os.path.join(portageDataDir, "config-archive")
 
     ebuild2Dir = os.path.join(portageCacheDir, "ebuild2")
-    repofilesDir = os.path.join(portageCacheDir, "repofiles")
     laymanfilesDir = os.path.join(portageCacheDir, "laymanfiles")
     distDir = os.path.join(portageCacheDir, "distfiles")
     kcacheDir = os.path.join(portageCacheDir, "kcache")

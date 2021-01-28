@@ -420,10 +420,6 @@ class EbuildRepositories:
         assert repoName in self.repoNameList
         return os.path.join(FmConst.portageDataDir, "repo-%s" % (repoName))
 
-    def getRepoFilesDir(self, repoName):
-        assert repoName in self.repoNameList
-        return os.path.join(FmConst.repofilesDir, repoName)
-
     def getRepoMetadata(self, repoName, key):
         # meta-data:
         #   1. repo-name: XXXX
@@ -443,7 +439,6 @@ class EbuildRepositories:
 
         cfgFile = self.getRepoCfgReposFile(repoName)
         repoDir = self.getRepoDir(repoName)
-        repoFilesDir = self.getRepoFilesDir(repoName)
 
         # check cfgFile content
         if True:
@@ -455,27 +450,13 @@ class EbuildRepositories:
                 else:
                     raise RepositoryCheckError("file content of \"%s\" is invalid" % (cfgFile))
 
-        # check repository files directory
-        if not os.path.exists(repoFilesDir):
-            if bAutoFix:
-                self.createRepository(repoName)
-            else:
-                raise RepositoryCheckError("repository files directory \"%s\" does not exist" % (repoFilesDir))
-        if not os.path.isdir(repoDir):
-            if bAutoFix:
-                FmUtil.forceDelete(repoFilesDir)
-                FmUtil.forceDelete(repoDir)
-                self.createRepository(repoName)
-            else:
-                raise RepositoryCheckError("repository files directory \"%s\" is invalid" % (repoFilesDir))
-
         # check repository directory
         if not os.path.exists(repoDir):
             if bAutoFix:
                 self.createRepository(repoName)
             else:
                 raise RepositoryCheckError("repository directory \"%s\" does not exist" % (repoDir))
-        if not os.path.isdir(repoDir) or not os.path.islink(repoDir) or os.readlink(repoDir) != repoFilesDir:
+        if not os.path.isdir(repoDir):
             if bAutoFix:
                 FmUtil.forceDelete(repoDir)
                 self.createRepository(repoName)
@@ -487,31 +468,30 @@ class EbuildRepositories:
         with open(self.getRepoCfgReposFile(repoName), "w") as f:
             f.write(self.__generateReposConfContent(repoName))
         if repoName == "gentoo":
-            self._repoGentooCreate(self.getRepoFilesDir("gentoo"))
+            self._repoGentooCreate(self.getRepoDir("gentoo"))
         elif repoName == "guru":
-            self._repoGuruCreate(self.getRepoFilesDir("guru"))
+            self._repoGuruCreate(self.getRepoDir("guru"))
         else:
             assert False
         self.__modifyRepo(repoName)
         self.__recordUpdateTime(repoName)
-        FmUtil.cmdCall("/bin/ln", "-sf", self.getRepoFilesDir(repoName), self.getRepoDir(repoName))
 
     def syncRepository(self, repoName):
         """Business exception should not be raise, but be printed as error message"""
         if repoName == "gentoo":
-            self._repoGentooSync(self.getRepoFilesDir("gentoo"))
+            self._repoGentooSync(self.getRepoDir("gentoo"))
         elif repoName == "guru":
-            self._repoGuruSync(self.getRepoFilesDir("guru"))
+            self._repoGuruSync(self.getRepoDir("guru"))
         else:
             assert False
         self.__modifyRepo(repoName)
         self.__recordUpdateTime(repoName)
 
-    def _repoGentooCreate(self, repoFilesDir):
-        FmUtil.ensureDir(repoFilesDir)
-        self._repoGentooSync(repoFilesDir)
+    def _repoGentooCreate(self, repoDir):
+        FmUtil.ensureDir(repoDir)
+        self._repoGentooSync(repoDir)
 
-    def _repoGentooSync(self, repoFilesDir):
+    def _repoGentooSync(self, repoDir):
         # lastDate = None
         # try:
         #     with open(recordFile, "r") as f:
@@ -547,14 +527,14 @@ class EbuildRepositories:
 
         # rsync to bleeding edge
         mr = FmUtil.portageGetGentooPortageRsyncMirror(FmConst.portageCfgMakeConf, FmConst.defaultRsyncMirror)
-        FmUtil.rsyncPull("-a -z -hhh --no-motd --delete --info=progress2", mr, repoFilesDir)
+        FmUtil.rsyncPull("-a -z -hhh --no-motd --delete --info=progress2", mr, repoDir)
 
-    def _repoGuruCreate(self, repoFilesDir):
-        FmUtil.forceDelete(repoFilesDir)
-        FmUtil.gitClone("https://github.com/gentoo/guru", repoFilesDir)
+    def _repoGuruCreate(self, repoDir):
+        FmUtil.forceDelete(repoDir)
+        FmUtil.gitClone("https://github.com/gentoo/guru", repoDir)
 
-    def _repoGuruSync(self, repoFilesDir):
-        FmUtil.gitPullOrClone(repoFilesDir, "https://github.com/gentoo/guru")
+    def _repoGuruSync(self, repoDir):
+        FmUtil.gitPullOrClone(repoDir, "https://github.com/gentoo/guru")
 
     def __generateReposConfContent(self, repoName):
         buf = ""
@@ -585,7 +565,7 @@ class EbuildRepositories:
         # modify eclass files
         elcassDir = os.path.join(modDir, "eclass")
         if os.path.exists(elcassDir):
-            dstDir = os.path.join(self.getRepoFilesDir(repoName), "eclass")
+            dstDir = os.path.join(self.getRepoDir(repoName), "eclass")
             _execModifyScripts(repoName, modDir, elcassDir, dstDir)
 
         # modify profile files
@@ -593,7 +573,7 @@ class EbuildRepositories:
         if os.path.exists(profilesDir):
             for profileDir in FmUtil.listLeafDirs(profilesDir):
                 srcDir = os.path.join(modDir, "profiles", profileDir)
-                dstDir = os.path.join(self.getRepoFilesDir(repoName), "profiles", profileDir)
+                dstDir = os.path.join(self.getRepoDir(repoName), "profiles", profileDir)
                 _execModifyScripts(repoName, modDir, srcDir, dstDir)
 
         # modify packages
@@ -603,13 +583,13 @@ class EbuildRepositories:
             fullCategoryDir = os.path.join(modDir, categoryDir)
             for ebuildDir in os.listdir(fullCategoryDir):
                 srcDir = os.path.join(modDir, categoryDir, ebuildDir)
-                dstDir = os.path.join(self.getRepoFilesDir(repoName), categoryDir, ebuildDir)
+                dstDir = os.path.join(self.getRepoDir(repoName), categoryDir, ebuildDir)
                 _execModifyScripts(repoName, modDir, srcDir, dstDir)
                 if len(os.listdir(fullCategoryDir)) == 0:
                     FmUtil.forceDelete(fullCategoryDir)
 
     def __recordUpdateTime(self, repoName):
-        with open(os.path.join(self.getRepoFilesDir(repoName), "update-time.txt"), "w") as f:
+        with open(os.path.join(self.getRepoDir(repoName), "update-time.txt"), "w") as f:
             f.write(datetime.now().date().strftime("%Y-%m-%d"))
             f.write("\n")
 

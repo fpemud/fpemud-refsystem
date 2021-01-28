@@ -762,13 +762,6 @@ class FmSysChecker:
             else:
                 raise FmCheckException("\"%s\" is not a directory" % (FmConst.ebuild2Dir))
 
-        # check /var/cache/portage/repofiles
-        if not os.path.isdir(FmConst.repofilesDir):
-            if self.bAutoFix:
-                FmUtil.ensureDir(FmConst.repofilesDir)
-            else:
-                raise FmCheckException("\"%s\" is not a directory" % (FmConst.repofilesDir))
-
         # check /var/cache/portage/laymanfiles
         if not os.path.isdir(FmConst.laymanfilesDir):
             if self.bAutoFix:
