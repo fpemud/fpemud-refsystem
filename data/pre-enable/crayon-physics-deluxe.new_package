@@ -1,4 +1,0 @@
-[main]
-name = menelkir
-url = https://gitlab.com/menelkir/gentoo-overlay.git
-package = games-puzzle/crayon-physics-deluxe
